@@ -10,6 +10,8 @@ export class ImageGallery extends Component {
     images: [],
     loading: false,
     error: null,
+    showModal: false,
+    openLargeImageIndx: null,
   };
   componentDidUpdate(prevProps, _) {
     const prevQuery = prevProps.query;
@@ -41,9 +43,18 @@ export class ImageGallery extends Component {
       }, 2000);
     }
   }
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+    }));
+  };
+  setLargeImageIndx = index => {
+    this.setState({ openLargeImageIndx: index });
+  };
 
   render() {
-    const { images, loading, error } = this.state;
+    const { images, loading, error, showModal, openLargeImageIndx } =
+      this.state;
     return (
       <>
         {error && <div>Error...</div>}
@@ -58,15 +69,25 @@ export class ImageGallery extends Component {
             />
           </div>
         )}
+        {showModal && (
+          <Modal onClose={this.toggleModal}>
+            <img
+              src={images[openLargeImageIndx].largeImageURL}
+              alt={images[openLargeImageIndx].tags}
+            />
+          </Modal>
+        )}
         {images && (
           <ul className="ImageGallery">
-            {images.map(image => (
-              <>
-                <ImageGalleryItem key={image.id} image={image} />
-                <Modal>
-                  <img src={image.largeImageURL} alt={image.tags} />
-                </Modal>
-              </>
+            {images.map((image, index) => (
+              <ImageGalleryItem
+                key={image.id}
+                image={image}
+                onClick={() => {
+                  this.setLargeImageIndx(index);
+                  this.toggleModal();
+                }}
+              />
             ))}
           </ul>
         )}

@@ -1,9 +1,12 @@
 import PropTypes from 'prop-types';
 import 'styles.css';
 
-export const ImageGalleryItem = ({ image: { webformatURL, tags } }) => {
+export const ImageGalleryItem = ({
+  image: { webformatURL, tags },
+  onClick,
+}) => {
   return (
-    <li className="ImageGalleryItem">
+    <li className="ImageGalleryItem" onClick={onClick}>
       <img className="ImageGalleryItem-image" src={webformatURL} alt={tags} />
     </li>
   );
@@ -11,6 +14,7 @@ export const ImageGalleryItem = ({ image: { webformatURL, tags } }) => {
 
 ImageGalleryItem.propTypes = {
   image: PropTypes.object.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 // ImageGallery.propTypes = {
