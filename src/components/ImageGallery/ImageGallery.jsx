@@ -1,72 +1,45 @@
-// import PropTypes from 'prop-types';
-import { Grid } from 'react-loader-spinner';
+import { Component } from 'react';
+import { toast } from 'react-toastify';
+import PropTypes from 'prop-types';
 import axios from 'axios';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 import { Modal } from 'components/Modal/Modal';
-import { Component } from 'react';
 import 'styles.css';
+
+axios.defaults.baseURL = 'https://pixabay.com/api';
+const API_KEY = '27565635-1fa3e47e8e30944c800be594a';
 
 export class ImageGallery extends Component {
   state = {
-    images: [],
-    loading: false,
-    page: 1,
-    error: null,
     showModal: false,
     openLargeImageIndx: null,
   };
   componentDidUpdate(prevProps, prevState) {
-    const prevQuery = prevProps.query;
-    const nextQuery = this.props.query;
-
-    if (prevQuery !== nextQuery || prevState.page !== this.state.page) {
-      this.setState({ loading: true });
-      setTimeout(() => {
-        axios(
-          `https://pixabay.com/api/?q=${nextQuery}&page=${this.state.page}&key=27565635-1fa3e47e8e30944c800be594a&image_type=photo&orientation=horizontal&per_page=12`
-        )
-          .then(({ data }) => {
-            const images = data;
-            if (images.totalHits === 0) {
-              console.log(
-                'Sorry, there are no images matching your search query. Please try again.'
-              );
-              return;
-            }
-            const newImages = images.hits;
-
-            this.setState(prevState => ({
-              images: [...prevState.images, ...newImages],
-            }));
-          })
-          .catch(error => this.setState({ error }))
-          .finally(() => this.setState({ loading: false }));
-        // fetch(
-        //   `https://pixabay.com/api/?q=${nextQuery}&page=${this.state.page}&key=27565635-1fa3e47e8e30944c800be594a&image_type=photo&orientation=horizontal&per_page=12`
-        // )
-        //   .then(r => {
-        //     if (r.ok) {
-        //       return r.json();
-        //     }
-        //     return Promise.reject(new Error('Помилочка'));
-        //   })
-        //   .then(images => {
-        //     console.log(images);
-        //     if (images.totalHits === 0) {
-        //       console.log(
-        //         'Sorry, there are no images matching your search query. Please try again.'
-        //       );
-        //       return;
-        //     }
-        //     const newImages = images.hits;
-
-        //     this.setState(prevState => ({
-        //       images: [...prevState.images, ...newImages],
-        //     }));
-        //   })
-        //   .catch(error => this.setState({ error }))
-        //   .finally(() => this.setState({ loading: false }));
-      }, 2000);
+    const { query, page } = this.props;
+    if (prevProps.query !== query || prevProps.page !== page) {
+      this.props.isLoading();
+      const params = new URLSearchParams({
+        key: API_KEY,
+        q: query,
+        image_type: 'photo',
+        orientation: 'horizontal',
+        page: page,
+        per_page: 12,
+      });
+      // setTimeout(() => {
+      axios(`/?${params}`)
+        .then(({ data }) => {
+          const images = data;
+          if (images.totalHits === 0) {
+            return toast.error(
+              'Sorry, there are no images matching your search query. Please try again.'
+            );
+          }
+          this.props.handleFetch(images.hits);
+        })
+        .catch(error => toast.error('Something went wrong. Please try again.'))
+        .finally(() => this.props.isLoading());
+      // }, 2000);
     }
   }
   toggleModal = () => {
@@ -77,16 +50,12 @@ export class ImageGallery extends Component {
   setLargeImageIndx = index => {
     this.setState({ openLargeImageIndx: index });
   };
-  loadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
-  };
 
   render() {
-    const { images, loading, error, showModal, openLargeImageIndx } =
-      this.state;
+    const { showModal, openLargeImageIndx } = this.state;
+    const { images } = this.props;
     return (
       <>
-        {error && <div>Error...</div>}
         {showModal && (
           <Modal onClose={this.toggleModal}>
             <img
@@ -109,27 +78,22 @@ export class ImageGallery extends Component {
             ))}
           </ul>
         )}
-        {loading && (
-          <div className="Loader">
-            <Grid
-              ariaLabel="loading-indicator"
-              visible={true}
-              color="#3f51b599"
-              height="50"
-              width="50"
-            />
-          </div>
-        )}
-        {images.length !== 0 && (
-          <button className="Button" type="button" onClick={this.loadMore}>
-            Загрузить еще
-          </button>
-        )}
       </>
     );
   }
 }
 
-// ImageGallery.propTypes = {
-//   query: PropTypes.string.isRequired,
-// };
+ImageGallery.propTypes = {
+  isLoading: PropTypes.func.isRequired,
+  query: PropTypes.string.isRequired,
+  images: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      webformatURL: PropTypes.string.isRequired,
+      largeImageURL: PropTypes.string.isRequired,
+      tags: PropTypes.string,
+    })
+  ),
+  page: PropTypes.number.isRequired,
+  handleFetch: PropTypes.func.isRequired,
+};
