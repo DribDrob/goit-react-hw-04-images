@@ -1,12 +1,12 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-// import { toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import * as yup from 'yup';
 import { FaSearch } from 'react-icons/fa';
 import PropTypes from 'prop-types';
 import 'styles.css';
 
 const schema = yup.object().shape({
-  query: yup.string().required(),
+  query: yup.string(),
 });
 
 const initialValues = {
@@ -15,10 +15,10 @@ const initialValues = {
 
 export const Searchbar = ({ onSubmit }) => {
   const handleSubmit = ({ query }, { resetForm }) => {
-    // if (query.trim() === '') {
-    //   console.log(query);
-    //   return toast.error('Please, enter the search query.');
-    // }
+    if (query.trim() === '') {
+      toast.error('Please, enter the search query.');
+      return;
+    }
     onSubmit(query);
     resetForm();
   };
@@ -44,10 +44,7 @@ export const Searchbar = ({ onSubmit }) => {
             placeholder="Search images and photos"
             name="query"
           />
-          <ErrorMessage
-            name="query"
-            // component={toast.error('Please, enter the search query.')}
-          />
+          <ErrorMessage name="query" />
         </Form>
       </Formik>
     </header>

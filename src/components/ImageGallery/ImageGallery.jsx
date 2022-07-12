@@ -12,7 +12,7 @@ const API_KEY = '27565635-1fa3e47e8e30944c800be594a';
 export class ImageGallery extends Component {
   state = {
     showModal: false,
-    openLargeImageIndx: null,
+    openLargeImage: null,
   };
   componentDidUpdate(prevProps, prevState) {
     const { query, page } = this.props;
@@ -47,31 +47,31 @@ export class ImageGallery extends Component {
       showModal: !showModal,
     }));
   };
-  setLargeImageIndx = index => {
-    this.setState({ openLargeImageIndx: index });
+  setLargeImage = (largeImageURL, tags) => {
+    this.setState({
+      openLargeImage: { largeImageURL: largeImageURL, tags: tags },
+    });
   };
 
   render() {
-    const { showModal, openLargeImageIndx } = this.state;
+    const { showModal, openLargeImage } = this.state;
     const { images } = this.props;
     return (
       <>
         {showModal && (
           <Modal onClose={this.toggleModal}>
-            <img
-              src={images[openLargeImageIndx].largeImageURL}
-              alt={images[openLargeImageIndx].tags}
-            />
+            <img src={openLargeImage.largeImageURL} alt={openLargeImage.tags} />
           </Modal>
         )}
         {images && (
           <ul className="ImageGallery">
-            {images.map((image, index) => (
+            {images.map(({ id, webformatURL, largeImageURL, tags }) => (
               <ImageGalleryItem
-                key={image.id}
-                image={image}
+                key={id}
+                webformatURL={webformatURL}
+                tags={tags}
                 onClick={() => {
-                  this.setLargeImageIndx(index);
+                  this.setLargeImage(largeImageURL, tags);
                   this.toggleModal();
                 }}
               />
