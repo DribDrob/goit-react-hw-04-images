@@ -1,13 +1,10 @@
 import { Component } from 'react';
-import { toast } from 'react-toastify';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { toast } from 'react-toastify';
+import { getImages } from 'services/services';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 import { Modal } from 'components/Modal/Modal';
 import 'styles.css';
-
-axios.defaults.baseURL = 'https://pixabay.com/api';
-const API_KEY = '27565635-1fa3e47e8e30944c800be594a';
 
 export class ImageGallery extends Component {
   state = {
@@ -18,16 +15,8 @@ export class ImageGallery extends Component {
     const { query, page } = this.props;
     if (prevProps.query !== query || prevProps.page !== page) {
       this.props.isLoading();
-      const params = new URLSearchParams({
-        key: API_KEY,
-        q: query,
-        image_type: 'photo',
-        orientation: 'horizontal',
-        page: page,
-        per_page: 12,
-      });
       // setTimeout(() => {
-      axios(`/?${params}`)
+      getImages(query, page)
         .then(({ data }) => {
           const images = data;
           if (images.totalHits === 0) {
