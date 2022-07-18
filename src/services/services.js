@@ -12,5 +12,5 @@ export async function getImages(query, page) {
         page: page,
         per_page: 12,
     });
-    return await axios(`/?${params}`);
+    return await axios.get(`/?${params}`);
 }
