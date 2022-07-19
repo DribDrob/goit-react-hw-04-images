@@ -7,8 +7,7 @@ import { useEffect } from 'react';
 
 export const ImageGallery = ({ images }) => {
   const [showModal, setShowModal] = useState(false);
-  const [largeImageURL, setLargeImageURL] = useState('');
-  const [tags, setTags] = useState('');
+  const [largeImage, setLargeImage] = useState(null);
 
   const toggleModal = () => {
     setShowModal(prevState => !prevState);
@@ -16,13 +15,13 @@ export const ImageGallery = ({ images }) => {
 
   useEffect(() => {
     toggleModal();
-  }, [largeImageURL, tags]);
+  }, [largeImage]);
 
   return (
     <>
       {showModal && (
         <Modal onClose={toggleModal}>
-          <img src={largeImageURL} alt={tags} />
+          <img src={largeImage.largeImageURL} alt={largeImage.tags} />
         </Modal>
       )}
       {images && (
@@ -33,8 +32,7 @@ export const ImageGallery = ({ images }) => {
               webformatURL={webformatURL}
               tags={tags}
               onClick={() => {
-                setLargeImageURL(largeImageURL);
-                setTags(tags);
+                setLargeImage({ largeImageURL, tags });
               }}
             />
           ))}
@@ -45,8 +43,6 @@ export const ImageGallery = ({ images }) => {
 };
 
 ImageGallery.propTypes = {
-  // isLoading: PropTypes.func.isRequired,
-  // query: PropTypes.string.isRequired,
   images: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number.isRequired,
@@ -55,8 +51,6 @@ ImageGallery.propTypes = {
       tags: PropTypes.string,
     })
   ),
-  // page: PropTypes.number.isRequired,
-  // handleFetch: PropTypes.func.isRequired,
 };
 
 // export class ImageGallery extends Component {
