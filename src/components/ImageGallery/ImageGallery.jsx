@@ -1,39 +1,14 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { toast } from 'react-toastify';
-import { getImages } from 'services/services';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 import { Modal } from 'components/Modal/Modal';
 import 'styles.css';
 import { useEffect } from 'react';
 
-export const ImageGallery = ({
-  images,
-  query,
-  page,
-  isLoading,
-  handleFetch,
-}) => {
+export const ImageGallery = ({ images }) => {
   const [showModal, setShowModal] = useState(false);
-  const [largeImage, setLargeImage] = useState(null);
-
-  useEffect(() => {
-    isLoading();
-    // setTimeout(() => {
-    getImages(query, page)
-      .then(({ data }) => {
-        const images = data;
-        if (images.totalHits === 0) {
-          return toast.error(
-            'Sorry, there are no images matching your search query. Please try again.'
-          );
-        }
-        handleFetch(images.hits);
-      })
-      .catch(error => toast.error('Something went wrong. Please try again.'))
-      .finally(() => isLoading());
-    // }, 2000);
-  }, [query, page, handleFetch, isLoading]);
+  const [largeImageURL, setLargeImageURL] = useState('');
+  const [tags, setTags] = useState('');
 
   const toggleModal = () => {
     setShowModal(prevState => !prevState);
@@ -41,13 +16,13 @@ export const ImageGallery = ({
 
   useEffect(() => {
     toggleModal();
-  }, [largeImage]);
+  }, [largeImageURL, tags]);
 
   return (
     <>
       {showModal && (
         <Modal onClose={toggleModal}>
-          <img src={largeImage.largeImageURL} alt={largeImage.tags} />
+          <img src={largeImageURL} alt={tags} />
         </Modal>
       )}
       {images && (
@@ -58,7 +33,8 @@ export const ImageGallery = ({
               webformatURL={webformatURL}
               tags={tags}
               onClick={() => {
-                setLargeImage(largeImageURL, tags);
+                setLargeImageURL(largeImageURL);
+                setTags(tags);
               }}
             />
           ))}
@@ -69,8 +45,8 @@ export const ImageGallery = ({
 };
 
 ImageGallery.propTypes = {
-  isLoading: PropTypes.func.isRequired,
-  query: PropTypes.string.isRequired,
+  // isLoading: PropTypes.func.isRequired,
+  // query: PropTypes.string.isRequired,
   images: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.number.isRequired,
@@ -79,8 +55,8 @@ ImageGallery.propTypes = {
       tags: PropTypes.string,
     })
   ),
-  page: PropTypes.number.isRequired,
-  handleFetch: PropTypes.func.isRequired,
+  // page: PropTypes.number.isRequired,
+  // handleFetch: PropTypes.func.isRequired,
 };
 
 // export class ImageGallery extends Component {

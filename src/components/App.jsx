@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { Searchbar } from 'components/Searchbar/Searchbar';
 import { ImageGallery } from 'components/ImageGallery/ImageGallery';
 import { Loader } from 'components/Loader/Loader';
 import { Button } from 'components/Button/Button';
+import { getImages } from 'services/services';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'styles.css';
@@ -32,17 +34,29 @@ export const App = () => {
     setPage(prevState => prevState + 1);
   };
 
+  useEffect(() => {
+    if (query) {
+      isLoading();
+      getImages(query, page)
+        .then(({ data }) => {
+          const images = data;
+          if (images.totalHits === 0) {
+            return toast.error(
+              'Sorry, there are no images matching your search query. Please try again.'
+            );
+          }
+          handleFetch(images.hits);
+        })
+        .catch(error => toast.error('Something went wrong. Please try again.'))
+        .finally(() => isLoading());
+    }
+  }, [query, page]);
+
   return (
     <>
       <div className="App">
         <Searchbar onSubmit={handleSubmit} />
-        <ImageGallery
-          isLoading={isLoading}
-          query={query}
-          images={images}
-          page={page}
-          handleFetch={handleFetch}
-        />
+        <ImageGallery images={images} />
         {loading && <Loader />}
         {images.length !== 0 && <Button onClick={loadMore}>Load more</Button>}
         <ToastContainer autoClose={3000} />
