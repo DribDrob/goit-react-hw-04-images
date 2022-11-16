@@ -17,6 +17,10 @@ export const ImageGallery = ({ images }) => {
     toggleModal();
   }, [largeImage]);
 
+  if (!largeImage) {
+    return null;
+  }
+
   return (
     <>
       {showModal && (
