@@ -14,6 +14,9 @@ export const ImageGallery = ({ images }) => {
   };
 
   useEffect(() => {
+    if (largeImage === null) {
+      return;
+    }
     toggleModal();
   }, [largeImage]);
 
